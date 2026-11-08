@@ -49,7 +49,7 @@ export function RecipeEditor({
       aria-label={isNew ? 'New recipe' : `Edit ${name}`}
       onSubmit={handleSubmit}
       onKeyDown={handleKeyDown}
-      className="relative flex flex-col gap-2 rounded-xl border-2 border-butter-edge bg-surface-inset p-2.5"
+      className="relative flex flex-col gap-2 rounded-xl border border-surface-border bg-surface-inset p-[11px] shadow-card"
     >
       <button
         type="button"
