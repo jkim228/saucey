@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-canvas font-sans antialiased;
+}
+
+/* Keyboard and text-field focus uses the app's terracotta instead of the browser's own color. */
+:focus-visible {
+  outline: 2px solid theme('colors.brand');
+  outline-offset: 1px;
+}
