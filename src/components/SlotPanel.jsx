@@ -10,11 +10,18 @@ export function SlotPanel({ title, slot, recipes, getRecipeServings, onAssign, o
   const [servings, setServings] = useState(slot.type === 'recipe' ? slot.servings : 1)
   const [isListOpen, setIsListOpen] = useState(false)
   const rowRef = useRef(null)
+  const inputRef = useRef(null)
 
   const name = query.trim()
   const matches = recipes.filter((recipe) => recipe.toLowerCase().includes(name.toLowerCase()))
   const isExactMatch = matches.length === 1 && matches[0].toLowerCase() === name.toLowerCase()
   const hasResults = isListOpen && name !== '' && matches.length > 0 && !isExactMatch
+
+  // Focus without letting the browser scroll the day track, which would stop the tapped day
+  // short of sliding all the way to the left.
+  useEffect(() => {
+    inputRef.current.focus({ preventScroll: true })
+  }, [])
 
   useEffect(() => {
     function handleDocumentClick(event) {
@@ -69,8 +76,8 @@ export function SlotPanel({ title, slot, recipes, getRecipeServings, onAssign, o
 
       <div ref={rowRef} className="flex gap-1">
         <input
+          ref={inputRef}
           type="text"
-          autoFocus
           aria-label="Search or add recipe"
           placeholder="Search…"
           autoComplete="off"
