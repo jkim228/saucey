@@ -47,9 +47,6 @@ export default {
         'day-card': 'calc((100% + 4px) / 1.5)',
         'weekend-card': 'calc(100% - (100% + 4px) / 1.5 + 4px)',
       },
-      height: {
-        'day-card': '235px',
-      },
       boxShadow: {
         card: '0 2px 8px -2px rgba(45, 42, 38, 0.05), 0 1px 3px rgba(45, 42, 38, 0.04)',
       },

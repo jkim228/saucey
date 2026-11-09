@@ -1,16 +1,25 @@
 import { SlotPanel } from './SlotPanel'
 
 const TRIGGER_CLASS =
-  'flex h-[60px] w-full items-center rounded-xl transition-all duration-200 ease-out hover:shadow-card active:scale-[0.98]'
+  'flex min-h-[60px] w-full flex-1 items-center rounded-xl transition-all duration-200 ease-out hover:shadow-card active:scale-[0.98]'
 
 export function MealSlot({ day, meal, plan }) {
-  const { recipes, getRecipeServings, openSlot, assignRecipe, markPlanned, removeSlot, openPanel, closePanel } = plan
+  const {
+    recipes,
+    getRecipeServings,
+    openSlot,
+    assignRecipe,
+    markPlanned,
+    removeSlot,
+    openPanel,
+    closePanel,
+  } = plan
   const slot = day.slots[meal.key]
   const title = `${day.name} ${meal.label.toLowerCase()}`
   const isOpen = openSlot?.dayKey === day.day && openSlot?.meal === meal.key
 
   return (
-    <div>
+    <div className="flex flex-1 flex-col">
       <p className="px-1 pb-1.5 font-label text-[11px] font-bold uppercase leading-none tracking-wider text-ink-label">
         {meal.label}
       </p>

@@ -34,10 +34,11 @@ export function App() {
     : { heading: isCalendar ? plan.weekLabel : null }
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-[456px] pb-20">
+    <main className="mx-auto flex min-h-dvh w-full max-w-[456px] flex-col pb-[calc(3.5rem+1px+env(safe-area-inset-bottom))]">
       <AppHeader {...header} />
       {(plan.hasSaveError || groceries.hasSaveError) && <SaveWarning />}
-      <div hidden={!isCalendar}>
+      {/* The week fills the screen above the menu bar, so the day cards can stretch to it. */}
+      <div hidden={!isCalendar} className={isCalendar ? 'flex flex-auto flex-col' : 'hidden'}>
         <DayCarousel plan={plan} isVisible={isCalendar} />
       </div>
       {isRecipes && (

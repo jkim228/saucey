@@ -71,7 +71,7 @@ export function DayCarousel({ plan, isVisible }) {
   }
 
   return (
-    <section aria-labelledby="weekly-schedule-title" className="mt-5">
+    <section aria-labelledby="weekly-schedule-title" className="mt-5 flex flex-auto flex-col">
       <div className="flex items-center justify-between px-4 pl-6">
         <h2
           id="weekly-schedule-title"
@@ -90,12 +90,12 @@ export function DayCarousel({ plan, isVisible }) {
         onClickCapture={handleTrackClick}
         onTouchStart={handleManualScroll}
         onWheel={handleManualScroll}
-        className="mt-3 flex items-start snap-x snap-mandatory scroll-pl-4 gap-3 overflow-x-auto px-4 pb-2 pt-0.5 [mask-image:linear-gradient(to_right,transparent,black_16px)] [scrollbar-width:none] motion-safe:scroll-smooth [&::-webkit-scrollbar]:hidden"
+        className="mt-3 flex flex-auto items-stretch snap-x snap-mandatory scroll-pl-4 gap-3 overflow-x-auto px-4 pb-2 pt-0.5 [mask-image:linear-gradient(to_right,transparent,black_16px)] [scrollbar-width:none] motion-safe:scroll-smooth [&::-webkit-scrollbar]:hidden"
       >
         {days.map((day) => (
           <DayCard key={day.day} day={day} plan={plan} />
         ))}
-        <WeekendCard date={plan.saturdayDate} isFridayOpen={openDayKey === 'FRI'} />
+        <WeekendCard date={plan.saturdayDate} />
       </div>
 
       <div className="-mt-3 flex items-center justify-center">
