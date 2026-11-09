@@ -189,6 +189,21 @@ describe('Suggested ingredients', () => {
     expect(suggested().querySelector('ul').textContent).toBe('tacos+ Add recipe')
   })
 
+  it('closes the box without saving when tapping outside it, but not when tapping inside', async () => {
+    seed({ MON: { lunch: recipeSlot('tacos') } })
+    const user = await openGroceries()
+
+    await user.click(within(suggested()).getByRole('button', { name: '+ Add recipe' }))
+    const box = screen.getByRole('textbox', { name: 'Ingredients for tacos' })
+    await user.type(box, 'salsa')
+    await user.click(box)
+    expect(box).toBeInTheDocument()
+
+    await user.click(screen.getByRole('heading', { name: 'Groceries' }))
+    expect(screen.queryByRole('textbox', { name: 'Ingredients for tacos' })).not.toBeInTheDocument()
+    expect(suggested().querySelector('ul').textContent).toBe('tacos+ Add recipe')
+  })
+
   it('offers + Add recipe for a dish whose recipe has no ingredients', async () => {
     seed({ MON: { lunch: recipeSlot('kimchi jjigae') } })
     await openGroceries()

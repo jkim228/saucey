@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const LABEL = 'font-label text-[13px] font-normal uppercase tracking-wider text-ink-muted'
 
@@ -60,12 +60,25 @@ export function SuggestedIngredients({ matched, unmatched, onAdd, onAddRecipe })
 
 /**
  * A box for a dish's ingredients, one per line (commas work too), with an inline Add button.
- * Enter starts a new line and the box grows with it; only Add saves.
+ * Enter starts a new line and the box grows with it; only Add saves. Escape or tapping
+ * outside closes it.
  */
 function DishRecipeBox({ dish, onSubmit, onCancel }) {
   const [text, setText] = useState('')
   const isEmpty = text.replace(/,/g, '').trim() === ''
   const rows = text.split('\n').length
+  const formRef = useRef(null)
+
+  // Tapping anywhere outside the box closes it without saving.
+  useEffect(() => {
+    function handleDocumentClick(event) {
+      if (!event.target.isConnected || formRef.current.contains(event.target)) return
+      onCancel()
+    }
+
+    document.addEventListener('click', handleDocumentClick)
+    return () => document.removeEventListener('click', handleDocumentClick)
+  }, [onCancel])
 
   function handleSubmit(event) {
     event.preventDefault()
@@ -74,6 +87,7 @@ function DishRecipeBox({ dish, onSubmit, onCancel }) {
 
   return (
     <form
+      ref={formRef}
       aria-label={`Add recipe for ${dish}`}
       onSubmit={handleSubmit}
       onKeyDown={(event) => event.key === 'Escape' && onCancel()}
