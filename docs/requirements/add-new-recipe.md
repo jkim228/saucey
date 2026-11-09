@@ -75,16 +75,22 @@ Latest design: `docs/design/recipes_v2.png`
 - [x] The recipe list shows a recipe's tags as amber pills right after its name, always in the order easy, lunch, dinner, 2+
 - [x] A recipe with no tags shows only its name
 - [x] Tags are saved on this device along with the recipe
+- [ ] A recipe with more than 1 serving is always saved with the "2+" tag, even if it was switched off
+- [ ] Raising servings above 1 in an open recipe switches the 2+ pill on right away
+- [ ] Recipes saved before this change with more than 1 serving get the 2+ tag the next time the app opens, keeping their other tags
++ Lowering servings back to 1 doesn't switch 2+ off, and a 1-serving recipe can still have 2+ if you pick it
 + You can't create your own tags yet
   - You can now add your own tags, as described in Adding a tag
 
 ### Filtering by tag
 
 - [x] A row of the four tag pills sits between the "Recipes" heading and the recipe list
+  - The row now shows only tags that at least one recipe has, in the usual tag order, and is hidden when no recipe has a tag
 - [x] Tapping a tag turns it amber and shows only recipes with that tag, and tapping it again turns it off
 - [x] With more than one tag on, only recipes that have every one of them show
 - [x] With no tags on, every recipe shows
 - [x] When no recipe matches, the list says "No recipes with this tag" (or "all these tags")
+- [ ] A picked filter drops out when no recipe has its tag anymore
 + The filter resets when you leave the Recipes tab or reload
 + Tapping a filter tag while a recipe is open closes it without saving, like tapping anywhere else outside it
 
@@ -102,11 +108,17 @@ Latest design: `docs/design/recipes_v2.png`
 ### Adding a tag
 
 - [x] The tag filter row ends with a small + in a dashed circle
+  - The + now sits at the end of an open recipe's tag pills, and the filter row has no +
 - [x] Tapping it turns it into a small text field, and Enter adds the typed tag
 - [x] A new tag appears after the built-in ones, in the filter row and in every recipe's tag pills
+  - It appears in the filter row only once a recipe has it
 - [x] New tags are saved lowercase on this device and kept across reloads
 - [x] A blank name, or one that matches an existing tag, adds nothing
+  - A name that matches an existing tag switches that tag on for the open recipe
 - [x] Escape cancels, and tapping away adds whatever was typed
+  - Escape cancels only the tag field, and the recipe stays open
+- [ ] A tag added in an open recipe is switched on for that recipe, and kept when you tap Save
+- [ ] Tapping the + doesn't close the open recipe
 + Tags can't be renamed or deleted yet
   - Replaced by the lines below, so typed ingredients are no longer added to the existing recipe
 - [x] Saving a new recipe whose name matches an existing one doesn't create it

@@ -17,6 +17,9 @@ As someone planning my week, I want to edit a meal slot right on its day card, s
 - [x] Unsaved edits are discarded with no prompt
 + The [x] replaces the Cancel button from the design
 + Pressing Escape also closes the panel without saving
+- [ ] On a phone, opening a dinner panel scrolls the whole page up so dinner sits where lunch was, keeping it clear of the keyboard
+- [ ] Closing the panel scrolls the page back
++ Lunch and dinner keep their order, and the page doesn't scroll on a computer
 
 ### Panel layout
 

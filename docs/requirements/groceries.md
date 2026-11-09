@@ -104,7 +104,28 @@ As someone planning my week, I want a simple grocery list I can add to quickly a
 - [x] If an ingredient is removed from the list, its chip comes back as long as the dish is still planned from today onward
 - [x] Suggestions update live when meals are assigned, swapped or removed, when recipe ingredients change, and when the list changes
 - [x] A dish with no chips left is hidden
+  - It now shows its name with "+ Add recipe" under it, as described in Adding a recipe from Suggested
 - [x] When no dish has chips left, the whole Suggested section is hidden, label included
+  - The section now hides only when no planned dish has chips or "+ Add recipe"
+
+### Adding a recipe from Suggested
+
+- [ ] After the dishes with chips, the Suggested section lists every planned dish that has nothing to suggest: no saved recipe in its name, a recipe with no ingredients, or every ingredient already on the list
+- [ ] Each shows its name in the same style as the other dish names, with "+ Add recipe" on the line below, slightly indented
+- [ ] These dishes follow the same rules as the others: today through Friday only, slot order, and each dish once
+- [ ] Tapping "+ Add recipe" opens a text box in its place, with an Add button beside it and the cursor already in the box
+- [ ] Only one box can be open at a time
+- [ ] The placeholder reads "Ingredients, one per line"
+- [ ] Pressing Enter starts a new line and the box grows with it, and only the Add button saves
+- [ ] Each line becomes one ingredient, and commas also separate ingredients
+- [ ] Add is disabled while the box is empty or contains only spaces and commas
+- [ ] Add saves the ingredients as the dish's recipe, creating a recipe named after the dish if none exists
+- [ ] If a recipe with the dish's name already exists, the ingredients are added to it, and its other ingredients, servings and tags are kept
+- [ ] The dish then moves up with its new ingredients as chips
+- [ ] Pressing Escape or tapping anywhere outside the box closes it without saving, discarding what was typed
+- [ ] Tapping inside the box doesn't close it
+- [ ] The box has the same outline as the meal slot search bar
++ Unlike the "+ Add" box for grocery items, tapping outside closes this box even when it has text
 
 ## Out of Scope
 
