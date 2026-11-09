@@ -1,12 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
 import { RecipeResults } from './RecipeResults'
-import { ServingsCounter } from './ServingsCounter'
 
 const ACTION_CLASS =
   'relative h-8 rounded-lg text-[11px] font-bold transition-all duration-200 ease-out active:scale-[0.98] after:absolute after:inset-x-0 after:-inset-y-1.5'
 
-export function SlotPanel({ title, slot, recipes, getRecipeServings, onAssign, onPlanned, onRemove, onClose }) {
+export function SlotPanel({
+  title,
+  slot,
+  recipes,
+  getRecipeServings,
+  onAssign,
+  onPlanned,
+  onRemove,
+  onClose,
+}) {
   const [query, setQuery] = useState(slot.type === 'recipe' ? slot.recipe : '')
+  // There's no counter in the panel; the slot still keeps a servings count behind the scenes.
   const [servings, setServings] = useState(slot.type === 'recipe' ? slot.servings : 1)
   const [isListOpen, setIsListOpen] = useState(false)
   const rowRef = useRef(null)
@@ -85,7 +94,6 @@ export function SlotPanel({ title, slot, recipes, getRecipeServings, onAssign, o
           onChange={handleQueryChange}
           className="h-11 min-w-0 flex-1 rounded-lg border border-stone-300 bg-white px-1.5 text-xs font-medium text-stone-900 placeholder:text-ink-muted"
         />
-        <ServingsCounter value={servings} onChange={setServings} />
       </div>
       {hasResults && <RecipeResults anchorRef={rowRef} recipes={matches} onSelect={handleSelect} />}
 

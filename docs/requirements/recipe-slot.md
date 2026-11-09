@@ -22,6 +22,7 @@ As someone planning my week, I want to edit a meal slot right on its day card, s
 
 - [x] The panel shows an "Add a dish" label at the top
 - [x] The search bar and servings counter sit on one row at the same height
+  - The servings counter is removed from the panel, so the search bar fills the row
 - [x] The servings counter has no visible label, but screen readers announce it as "Servings"
 - [x] A row of actions sits below the search row, with Assign where Cancel was in the design
 - [x] On an empty slot, the action row shows Planned and Assign
@@ -47,6 +48,8 @@ As someone planning my week, I want to edit a meal slot right on its day card, s
 + Assign uses the darker amber from design.md, because the design's lighter amber doesn't meet the required contrast with white text
 
 ### Servings
+
+- The panel no longer shows a servings counter. Slots still keep a count behind the scenes: an empty slot takes the chosen recipe's servings, and a filled slot keeps its count
 
 - [x] The servings counter starts at 1 and can't go below 1
   - Choosing a recipe from search on an empty slot starts the counter at that recipe's servings, as described in Add New Recipe

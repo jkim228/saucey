@@ -15,9 +15,13 @@ function searchBar() {
   return screen.getByRole('textbox', { name: 'Search or add recipe' })
 }
 
-function servingsValue() {
-  return screen.getByRole('group', { name: 'Servings' }).querySelector('output').textContent
-}
+it('has no servings counter in the Add a dish panel', async () => {
+  seedSampleWeek()
+  const user = userEvent.setup()
+  render(<App />)
+  await user.click(screen.getByRole('button', { name: MONDAY_LUNCH }))
+  expect(screen.queryByRole('group', { name: 'Servings' })).not.toBeInTheDocument()
+})
 
 describe('Recipe slot', () => {
   let user
@@ -107,58 +111,6 @@ describe('Recipe slot', () => {
       await user.click(button('Assign'))
 
       expect(button('Edit Monday lunch: caldo verde')).toBeInTheDocument()
-    })
-  })
-
-  describe('servings', () => {
-    it('starts at 1, cannot go below 1, and is saved with the assignment', async () => {
-      await user.click(button(MONDAY_LUNCH))
-      expect(servingsValue()).toBe('1')
-      expect(button('Fewer servings')).toBeDisabled()
-
-      await user.click(button('More servings'))
-      await user.click(button('More servings'))
-      await user.click(button('Assign'))
-
-      await user.click(button(MONDAY_LUNCH))
-      expect(servingsValue()).toBe('3')
-    })
-
-    async function setLasagnaServings(count) {
-      await user.click(button('Recipes'))
-      await user.click(button('Edit lasagna'))
-      for (let i = 1; i < count; i += 1) await user.click(button('More servings'))
-      await user.click(button('Save'))
-      await user.click(button('Weekly schedule'))
-    }
-
-    async function chooseFromSearch(recipe) {
-      await user.clear(searchBar())
-      await user.type(searchBar(), recipe.slice(0, 3))
-      const results = within(screen.getByRole('list', { name: 'Matching recipes' }))
-      await user.click(results.getByRole('button', { name: recipe }))
-    }
-
-    it("starts an empty slot at the chosen recipe's servings", async () => {
-      await user.click(button(MONDAY_LUNCH))
-      await user.click(button('Remove'))
-      await setLasagnaServings(3)
-
-      await user.click(button('Add to Monday lunch'))
-      await chooseFromSearch('lasagna')
-      expect(servingsValue()).toBe('3')
-    })
-
-    it('keeps a filled slot\'s count when choosing another recipe, and later recipe edits leave it alone', async () => {
-      await setLasagnaServings(3)
-
-      await user.click(button('Edit Tuesday lunch: kimchi jjigae'))
-      await chooseFromSearch('lasagna')
-      expect(servingsValue()).toBe('1')
-      await user.click(button('Close'))
-
-      await user.click(button(MONDAY_LUNCH))
-      expect(servingsValue()).toBe('1')
     })
   })
 

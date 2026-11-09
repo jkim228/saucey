@@ -16,10 +16,6 @@ function searchBar() {
   return screen.getByRole('textbox', { name: 'Search or add recipe' })
 }
 
-function servingsValue() {
-  return screen.getByRole('group', { name: 'Servings' }).querySelector('output').textContent
-}
-
 function emptySlots() {
   return screen.getAllByRole('button', { name: /^Add to / })
 }
@@ -53,14 +49,13 @@ describe('Save data', () => {
   })
 
   describe('saving', () => {
-    it('keeps recipes, servings and Planned slots after a reload', async () => {
+    it('keeps recipes and Planned slots after a reload', async () => {
       setToday('2026-11-09')
       const user = userEvent.setup()
       const view = render(<App />)
 
       await user.click(button('Add to Monday lunch'))
       await user.type(searchBar(), 'lasagna')
-      await user.click(button('More servings'))
       await user.click(button('Assign'))
       await user.click(button('Add to Monday dinner'))
       await user.click(button('Planned'))
@@ -68,8 +63,7 @@ describe('Save data', () => {
       reload(view)
 
       expect(button('Edit Monday dinner: Planned')).toBeInTheDocument()
-      await user.click(button('Edit Monday lunch: lasagna'))
-      expect(servingsValue()).toBe('2')
+      expect(button('Edit Monday lunch: lasagna')).toBeInTheDocument()
     })
 
     it('keeps new recipes after a reload', async () => {
