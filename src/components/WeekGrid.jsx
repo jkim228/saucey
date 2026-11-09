@@ -1,7 +1,7 @@
 import { MEALS } from '../data/week'
 
 const CELL_CLASS =
-  'flex min-h-[60px] w-full flex-1 items-center justify-center rounded-xl px-0.5 text-center transition-all duration-200 ease-out active:scale-[0.98]'
+  'flex min-h-[60px] w-full flex-1 items-center rounded-xl px-[5px] text-left transition-all duration-200 ease-out active:scale-[0.98]'
 
 /** The whole week at a glance: a column per weekday, lunch above dinner. */
 export function WeekGrid({ days, onSelectSlot }) {
@@ -48,7 +48,7 @@ function WeekCell({ slot, title, onSelect }) {
       <button
         {...props}
         aria-label={`Add to ${title}`}
-        className={`${CELL_CLASS} border-[1.5px] border-dashed border-surface-dashed bg-surface-inset text-lg font-medium text-ink-muted`}
+        className={`${CELL_CLASS} justify-center border-[1.5px] border-dashed border-surface-dashed bg-surface-inset text-lg font-medium text-ink-muted`}
       >
         <span aria-hidden="true">+</span>
       </button>

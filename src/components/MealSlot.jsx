@@ -1,7 +1,7 @@
 import { SlotPanel } from './SlotPanel'
 
 const TRIGGER_CLASS =
-  'flex min-h-[60px] w-full flex-1 items-center rounded-xl transition-all duration-200 ease-out hover:shadow-card active:scale-[0.98]'
+  'relative flex min-h-[60px] w-full flex-1 items-center rounded-xl transition-all duration-200 ease-out hover:shadow-card active:scale-[0.98]'
 
 export function MealSlot({ day, meal, plan }) {
   const {
@@ -20,12 +20,10 @@ export function MealSlot({ day, meal, plan }) {
 
   return (
     <div className="flex flex-1 flex-col">
-      <p className="px-1 pb-1.5 font-label text-[11px] font-bold uppercase leading-none tracking-wider text-ink-label">
-        {meal.label}
-      </p>
       {isOpen ? (
         <SlotPanel
           title={title}
+          mealLabel={meal.label}
           slot={slot}
           recipes={recipes}
           getRecipeServings={getRecipeServings}
@@ -35,13 +33,36 @@ export function MealSlot({ day, meal, plan }) {
           onClose={closePanel}
         />
       ) : (
-        <SlotTrigger slot={slot} title={title} onOpen={() => openPanel(day.day, meal.key)} />
+        <SlotTrigger
+          slot={slot}
+          title={title}
+          mealLabel={meal.label}
+          onOpen={() => openPanel(day.day, meal.key)}
+        />
       )}
     </div>
   )
 }
 
-function SlotTrigger({ slot, title, onOpen }) {
+/** Sits in the card's top-left corner, where the open panel shows the same label. */
+function MealLabel({ children, variant = 'recipe' }) {
+  // Only a slot with a recipe gets the terracotta label; empty and Planned slots are dark gray.
+  const tone = {
+    recipe: 'tracking-wider text-ink-label',
+    empty: 'tracking-wider text-neutral-text',
+    planned: 'tracking-[0.18em] text-neutral-text',
+  }[variant]
+
+  return (
+    <span
+      className={`absolute left-[9px] top-[11px] font-label text-[11px] font-bold uppercase leading-4 ${tone}`}
+    >
+      {children}
+    </span>
+  )
+}
+
+function SlotTrigger({ slot, title, mealLabel, onOpen }) {
   if (slot.type === 'empty') {
     return (
       <button
@@ -51,6 +72,7 @@ function SlotTrigger({ slot, title, onOpen }) {
         onClick={onOpen}
         className={`${TRIGGER_CLASS} justify-center border-[1.5px] border-dashed border-surface-dashed bg-surface-inset text-xl font-medium text-ink-muted`}
       >
+        <MealLabel variant="empty">{mealLabel}</MealLabel>
         <span aria-hidden="true">+</span>
       </button>
     )
@@ -65,6 +87,7 @@ function SlotTrigger({ slot, title, onOpen }) {
         onClick={onOpen}
         className={`${TRIGGER_CLASS} border border-planned-border bg-planned px-3 text-left font-display text-base text-planned-text`}
       >
+        <MealLabel variant="planned">{mealLabel}</MealLabel>
         planned!
       </button>
     )
@@ -78,6 +101,7 @@ function SlotTrigger({ slot, title, onOpen }) {
       onClick={onOpen}
       className={`${TRIGGER_CLASS} border border-butter-border bg-butter px-3 text-left font-display text-[17px] leading-tight text-butter-text`}
     >
+      <MealLabel>{mealLabel}</MealLabel>
       {slot.recipe}
     </button>
   )

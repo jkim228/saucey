@@ -47,7 +47,8 @@ describe('DayCarousel', () => {
       expect(screen.getByText('10/10 meals planned')).toBeInTheDocument()
 
       await user.click(screen.getByRole('button', { name: 'Edit Monday lunch: lasagna' }))
-      await user.click(screen.getByRole('button', { name: 'Remove' }))
+      await user.click(screen.getByRole('button', { name: 'Clear search' }))
+      await user.click(screen.getByRole('button', { name: 'Assign' }))
       expect(screen.getByText('9/10 meals planned')).toBeInTheDocument()
 
       await user.click(screen.getByRole('button', { name: 'Add to Monday lunch' }))

@@ -81,9 +81,12 @@ describe('Recipe slot', () => {
       expect(button('Edit Monday lunch: caldo verde')).toBeInTheDocument()
     })
 
-    it('disables Assign until the search bar contains a name', async () => {
+    it('disables Assign on an empty slot until the search bar contains a name', async () => {
       await user.click(button(MONDAY_LUNCH))
-      await user.clear(searchBar())
+      await user.click(button('Clear search'))
+      await user.click(button('Assign'))
+
+      await user.click(button('Add to Monday lunch'))
       expect(button('Assign')).toBeDisabled()
 
       await user.type(searchBar(), '   ')
@@ -114,28 +117,37 @@ describe('Recipe slot', () => {
     })
   })
 
-  describe('removing', () => {
-    it('empties the slot immediately, and the recipe stays available in search', async () => {
+  describe('clearing', () => {
+    it('shows a trash icon that clears a prefilled search bar', async () => {
       await user.click(button(MONDAY_LUNCH))
-      await user.click(button('Remove'))
+      expect(searchBar()).toHaveValue('lasagna')
+
+      await user.click(button('Clear search'))
+      expect(searchBar()).toHaveValue('')
+      expect(searchBar()).toHaveFocus()
+      expect(screen.queryByRole('button', { name: 'Clear search' })).not.toBeInTheDocument()
+    })
+
+    it('empties the slot when saved blank, and the recipe stays available in search', async () => {
+      await user.click(button(MONDAY_LUNCH))
+      await user.click(button('Clear search'))
+      await user.click(button('Assign'))
 
       expect(screen.queryByRole('form')).not.toBeInTheDocument()
       await user.click(button('Add to Monday lunch'))
-      expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument()
-
       await user.type(searchBar(), 'Lasa')
       expect(button('lasagna')).toBeInTheDocument()
     })
   })
 
   describe('planned state', () => {
-    it('replaces the recipe with one tap, and can be removed to empty the slot', async () => {
+    it('replaces the recipe with one tap, and saving it blank empties the slot', async () => {
       await user.click(button(MONDAY_LUNCH))
       await user.click(button('Planned'))
 
       expect(screen.queryByRole('form')).not.toBeInTheDocument()
       await user.click(button('Edit Monday lunch: Planned'))
-      await user.click(button('Remove'))
+      await user.click(button('Assign'))
 
       expect(button('Add to Monday lunch')).toBeInTheDocument()
     })
