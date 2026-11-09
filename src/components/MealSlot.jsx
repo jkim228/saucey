@@ -19,7 +19,7 @@ export function MealSlot({ day, meal, plan }) {
   const isOpen = openSlot?.dayKey === day.day && openSlot?.meal === meal.key
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div data-meal={meal.key} className="flex flex-1 flex-col">
       {isOpen ? (
         <SlotPanel
           title={title}

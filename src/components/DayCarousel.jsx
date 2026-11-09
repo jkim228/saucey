@@ -41,6 +41,23 @@ export function DayCarousel({ plan, isVisible }) {
     if (openDayKey) goTo(days.findIndex((day) => day.day === openDayKey))
   }, [openDayKey])
 
+  // On a phone, the keyboard would cover an open dinner, so the whole page scrolls up until
+  // dinner sits where lunch was. The week fills the screen exactly, so room is added below it
+  // for the scroll, and taken away when the panel closes.
+  const isDinnerOpen = isVisible && plan.openSlot?.meal === 'dinner'
+  useLayoutEffect(() => {
+    if (!isDinnerOpen || !window.matchMedia?.('(pointer: coarse)').matches) return
+    const panel = document.querySelector('[data-slot-panel]')
+    const lunch = panel?.closest('article')?.querySelector('[data-meal="lunch"]')
+    if (!lunch) return
+    const shift = panel.getBoundingClientRect().top - lunch.getBoundingClientRect().top
+    document.body.style.paddingBottom = `${shift}px`
+    window.scrollBy({ top: shift, behavior: 'smooth' })
+    return () => {
+      document.body.style.paddingBottom = ''
+    }
+  }, [isDinnerOpen, openDayKey])
+
   function getStep() {
     const [first, second] = trackRef.current.children
     return second.offsetLeft - first.offsetLeft
