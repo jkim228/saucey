@@ -4,6 +4,8 @@
 
 body {
   @apply bg-canvas font-sans antialiased;
+  /* Quick double taps on cards and counters shouldn't zoom the page. */
+  touch-action: manipulation;
 }
 
 /* Keyboard and text-field focus uses the app's terracotta instead of the browser's own color. */
