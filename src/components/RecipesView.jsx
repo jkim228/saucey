@@ -8,7 +8,10 @@ const ROW_CLASS = 'border-b border-surface-border last:border-b-0'
 export function RecipesView({ recipes, editor, tagOptions, onAddTag }) {
   const { editing, deleted, getIngredients, getTags, open, close, save, remove, undoRemove } =
     editor
-  const [filterTags, setFilterTags] = useState([])
+  const [pickedTags, setFilterTags] = useState([])
+  // Only tags some recipe has are offered as filters; a pick whose tag is no longer used drops out.
+  const filterOptions = tagOptions.filter((tag) => recipes.some((name) => getTags(name).includes(tag)))
+  const filterTags = pickedTags.filter((tag) => filterOptions.includes(tag))
   // A recipe shows only when it has every tag picked in the filter.
   const shown = [...recipes]
     .reverse()
@@ -23,6 +26,7 @@ export function RecipesView({ recipes, editor, tagOptions, onAddTag }) {
           initialServings={editing.servings}
           initialTags={editing.tags}
           tagOptions={tagOptions}
+          onAddTag={onAddTag}
           onSave={save}
           onDelete={remove}
           onClose={close}
@@ -33,14 +37,15 @@ export function RecipesView({ recipes, editor, tagOptions, onAddTag }) {
 
   return (
     <>
-      <TagToggles
-        label="Filter by tag"
-        options={tagOptions}
-        selected={filterTags}
-        onChange={setFilterTags}
-        onAdd={onAddTag}
-        className="mx-5 mt-4"
-      />
+      {filterOptions.length > 0 && (
+        <TagToggles
+          label="Filter by tag"
+          options={filterOptions}
+          selected={filterTags}
+          onChange={setFilterTags}
+          className="mx-5 mt-4"
+        />
+      )}
       <section
         aria-label="Recipes"
         className="mx-4 mt-3 rounded-2xl border border-surface-border bg-white shadow-card"

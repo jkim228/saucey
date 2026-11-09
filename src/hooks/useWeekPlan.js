@@ -89,14 +89,16 @@ export function useWeekPlan() {
   }
 
   /** Adds a tag every recipe can use; blank names and ones that already exist are ignored. */
+  /** Adds a custom tag and returns its cleaned-up name, or null for a blank name. */
   function addTag(tagName) {
     const tag = toLower(tagName.trim().replace(/\s+/g, ' '))
-    if (!tag) return
+    if (!tag) return null
     setPlan((current) => {
       const existing = [...RECIPE_TAGS, ...(current.customTags ?? [])]
       if (existing.includes(tag)) return current
       return { ...current, customTags: [...(current.customTags ?? []), tag] }
     })
+    return tag
   }
 
   /** A recipe's tags, in the order tagOptions lists them. */

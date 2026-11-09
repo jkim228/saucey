@@ -13,6 +13,7 @@ export function RecipeEditor({
   initialServings,
   initialTags,
   tagOptions,
+  onAddTag,
   onSave,
   onDelete,
   onClose,
@@ -27,6 +28,9 @@ export function RecipeEditor({
 
   useEffect(() => {
     function handleDocumentClick(event) {
+      // A click that swapped its own button out (like the tag +) has already left the page by
+      // now, so it can't be told apart from an outside click; it came from inside, so ignore it.
+      if (!event.target.isConnected) return
       if (event.target.closest('[data-recipe-editor], [data-recipe-trigger]')) return
       onClose()
     }
@@ -44,6 +48,12 @@ export function RecipeEditor({
   function handleServingsChange(value) {
     setServings(value)
     setTags((current) => withServingsTag(current, value))
+  }
+
+  /** A tag named here is created and switched on for this recipe. */
+  function handleAddTag(tagName) {
+    const tag = onAddTag(tagName)
+    if (tag) setTags((current) => (current.includes(tag) ? current : [...current, tag]))
   }
 
   function handleKeyDown(event) {
@@ -92,6 +102,7 @@ export function RecipeEditor({
         options={tagOptions}
         selected={tags}
         onChange={setTags}
+        onAdd={handleAddTag}
         className="px-1.5"
       />
 

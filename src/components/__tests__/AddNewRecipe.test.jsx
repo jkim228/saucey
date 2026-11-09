@@ -254,7 +254,9 @@ describe('Add new recipe', () => {
       await openRecipes(user)
 
       await user.click(button('Edit lasagna'))
-      const options = within(screen.getByRole('group', { name: 'Tags' })).getAllByRole('button')
+      const options = within(screen.getByRole('group', { name: 'Tags' }))
+        .getAllByRole('button')
+        .filter((option) => option.hasAttribute('aria-pressed'))
       expect(options.map((option) => option.textContent)).toEqual(['easy', 'lunch', 'dinner', '2+'])
       expect(options.every((option) => option.getAttribute('aria-pressed') === 'false')).toBe(true)
 
@@ -371,14 +373,36 @@ describe('Add new recipe', () => {
       expect(cardNames()).toHaveLength(STARTER_RECIPES.length)
     })
 
-    it('says so when no recipe has the picked tags', async () => {
+    it('says so when no recipe has every picked tag', async () => {
       const user = userEvent.setup()
       await openRecipes(user)
+      await tagRecipe(user, 'lasagna', ['easy'])
+      await tagRecipe(user, 'caldo verde', ['dinner'])
 
-      await user.click(filterButton('2+'))
+      await user.click(filterButton('easy'))
+      await user.click(filterButton('dinner'))
 
       expect(recipesGrid().queryAllByRole('button')).toEqual([])
-      expect(screen.getByText('No recipes with this tag')).toBeInTheDocument()
+      expect(screen.getByText('No recipes with all these tags')).toBeInTheDocument()
+    })
+
+    it('offers only tags some recipe uses, with no + to add one', async () => {
+      const user = userEvent.setup()
+      await openRecipes(user)
+      expect(screen.queryByRole('group', { name: 'Filter by tag' })).not.toBeInTheDocument()
+
+      await tagRecipe(user, 'lasagna', ['dinner', 'easy'])
+      const names = () =>
+        within(screen.getByRole('group', { name: 'Filter by tag' }))
+          .getAllByRole('button')
+          .map((pill) => pill.textContent)
+      expect(names()).toEqual(['easy', 'dinner'])
+      expect(screen.queryByRole('button', { name: 'Add a tag' })).not.toBeInTheDocument()
+
+      await user.click(filterButton('easy'))
+      await tagRecipe(user, 'lasagna', ['easy'])
+      expect(names()).toEqual(['dinner'])
+      expect(cardNames()).toHaveLength(STARTER_RECIPES.length)
     })
   })
 
@@ -428,50 +452,52 @@ describe('Add new recipe', () => {
   })
 
   describe('adding a tag', () => {
-    function filterGroup() {
-      return within(screen.getByRole('group', { name: 'Filter by tag' }))
+    function editorTags() {
+      return within(screen.getByRole('group', { name: 'Tags' }))
     }
 
     async function addTag(user, text) {
-      await user.click(button('Add a tag'))
+      await user.click(editorTags().getByRole('button', { name: 'Add a tag' }))
       await user.type(screen.getByRole('textbox', { name: 'New tag name' }), text)
     }
 
-    it('adds a lowercase tag to the filter and the editor, kept after a reload', async () => {
+    it('adds a lowercase tag from the editor, switched on for that recipe, kept after a reload', async () => {
       const user = userEvent.setup()
       const view = render(<App />)
       await user.click(menuButton('Recipes'))
 
+      await user.click(button('Edit lasagna'))
       await addTag(user, 'Vegan{Enter}')
 
-      const names = () => filterGroup().getAllByRole('button').map((pill) => pill.textContent)
+      const names = () => editorTags().getAllByRole('button').map((pill) => pill.textContent)
       expect(names()).toEqual(['easy', 'lunch', 'dinner', '2+', 'vegan', '+'])
-
-      await user.click(button('Edit lasagna'))
-      const tags = within(screen.getByRole('group', { name: 'Tags' }))
-      await user.click(tags.getByRole('button', { name: 'vegan' }))
+      expect(editorTags().getByRole('button', { name: 'vegan' })).toHaveAttribute('aria-pressed', 'true')
       await user.click(button('Save'))
 
       view.unmount()
       render(<App />)
-      await user.click(filterGroup().getByRole('button', { name: 'vegan' }))
+      const filter = within(screen.getByRole('group', { name: 'Filter by tag' }))
+      expect(filter.getAllByRole('button').map((pill) => pill.textContent)).toEqual(['vegan'])
+      await user.click(filter.getByRole('button', { name: 'vegan' }))
       expect(cardNames()).toEqual(['Edit lasagna'])
     })
 
     it('ignores blank names and tags that already exist, and Escape cancels', async () => {
       const user = userEvent.setup()
       await openRecipes(user)
-      const count = () => filterGroup().getAllByRole('button').length
+      await user.click(button('Edit lasagna'))
+      const count = () => editorTags().getAllByRole('button').length
 
       await addTag(user, 'EASY{Enter}')
       expect(count()).toBe(5)
+      expect(editorTags().getByRole('button', { name: 'easy' })).toHaveAttribute('aria-pressed', 'true')
 
       await addTag(user, '   {Enter}')
       expect(count()).toBe(5)
 
       await addTag(user, 'spicy{Escape}')
       expect(count()).toBe(5)
-      expect(button('Add a tag')).toBeInTheDocument()
+      expect(editorTags().getByRole('button', { name: 'Add a tag' })).toBeInTheDocument()
     })
   })
 })

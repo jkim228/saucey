@@ -65,6 +65,8 @@ function TagAdder({ onAdd }) {
       event.preventDefault()
       finish()
     } else if (event.key === 'Escape') {
+      // Only the tag field closes, not a recipe editor around it.
+      event.stopPropagation()
       setName('')
       setIsOpen(false)
     }
