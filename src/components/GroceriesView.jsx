@@ -3,6 +3,7 @@ import { GroceryItem } from './GroceryItem'
 import { MessageBar } from './MessageBar'
 import { SuggestedIngredients } from './SuggestedIngredients'
 import { getOpeningIndex } from '../lib/dates'
+import { findRecipe, parseItemLines } from '../lib/recipes'
 import { getSuggestions } from '../lib/suggestions'
 
 export function GroceriesView({ groceries, plan }) {
@@ -18,13 +19,21 @@ export function GroceriesView({ groceries, plan }) {
     addItem,
   } = groceries
   // Only meals from today onward; on a weekend that's the whole upcoming week.
-  const suggestions = getSuggestions({
+  const { matched, unmatched } = getSuggestions({
     slots: plan.slots,
     recipes: plan.recipes,
     ingredients: plan.ingredients,
     listNames: items.map((item) => item.name),
     startIndex: getOpeningIndex(new Date()),
   })
+
+  /** Saves comma-separated `text` as the dish's recipe, adding to the recipe if it already exists. */
+  function addDishRecipe(dish, text) {
+    const name = findRecipe(plan.recipes, dish) ?? dish
+    const existing = plan.ingredients[name] ?? []
+    const ingredients = parseItemLines([...existing, ...text.split(',')].join('\n'))
+    plan.saveRecipe(name, ingredients, plan.getRecipeServings(name), plan.getRecipeTags(name))
+  }
 
   return (
     <>
@@ -91,7 +100,12 @@ export function GroceriesView({ groceries, plan }) {
         />
       </section>
 
-      <SuggestedIngredients suggestions={suggestions} onAdd={addItem} />
+      <SuggestedIngredients
+        matched={matched}
+        unmatched={unmatched}
+        onAdd={addItem}
+        onAddRecipe={addDishRecipe}
+      />
 
       {message && <MessageBar text={message.text} onUndo={message.undoItems && undoClear} />}
     </>

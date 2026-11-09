@@ -6,7 +6,7 @@ import { createEmptySlots } from '../../data/week'
 import { saveGroceries, savePlan } from '../../lib/storage'
 import { setToday } from './testPlan'
 
-const RECIPES = ['risotto', 'mushroom', 'rice', 'lasagna']
+const RECIPES = ['risotto', 'mushroom', 'rice', 'lasagna', 'kimchi jjigae']
 const INGREDIENTS = {
   Risotto: ['arborio rice', 'parmesan', 'stock'],
   Mushroom: ['cremini', 'Parmesan'],
@@ -89,11 +89,12 @@ describe('Suggested ingredients', () => {
     expect(dishes()).toEqual([['lasagna', ['lasagna sheets']]])
   })
 
-  it('hides ingredients already on the list, and the section when nothing is left', async () => {
+  it('hides ingredients already on the list, and offers + Add recipe when nothing is left', async () => {
     seed({ MON: { lunch: recipeSlot('lasagna') } }, { groceries: ['RICOTTA', 'lasagna sheets'] })
     await openGroceries()
 
-    expect(suggested()).not.toBeInTheDocument()
+    expect(within(suggested()).queryAllByRole('list', { name: / ingredients$/ })).toEqual([])
+    expect(suggested().querySelector('ul').textContent).toBe('lasagna+ Add recipe')
   })
 
   it('brings a chip back when its item is cleared from the list', async () => {
@@ -105,10 +106,77 @@ describe('Suggested ingredients', () => {
     expect(dishes()).toEqual([['lasagna', ['ricotta', 'lasagna sheets']]])
   })
 
-  it('shows nothing for planned or empty slots, or dishes with no matching recipe', async () => {
-    seed({ MON: { lunch: { type: 'planned' }, dinner: recipeSlot('tacos') } })
+  it('shows nothing for planned or empty slots', async () => {
+    seed({ MON: { lunch: { type: 'planned' } } })
     await openGroceries()
 
     expect(suggested()).not.toBeInTheDocument()
+  })
+
+  it('lists dishes with no matching recipe after the matched ones, each with + Add recipe', async () => {
+    seed({
+      MON: { lunch: recipeSlot('tacos'), dinner: recipeSlot('lasagna') },
+      TUE: { lunch: recipeSlot('Pizza'), dinner: recipeSlot('TACOS') },
+    })
+    await openGroceries()
+
+    const rows = [...suggested().querySelector('ul').children]
+    expect(rows.map((row) => row.textContent)).toEqual([
+      expect.stringMatching(/^lasagna/),
+      'tacos+ Add recipe',
+      'pizza+ Add recipe',
+    ])
+    expect(within(suggested()).getAllByRole('button', { name: '+ Add recipe' })).toHaveLength(2)
+  })
+
+  it('shows the section for unmatched dishes alone', async () => {
+    seed({ MON: { lunch: recipeSlot('tacos') } })
+    await openGroceries()
+
+    expect(within(suggested()).getByText('+ Add recipe')).toBeInTheDocument()
+  })
+
+  it('saves ingredients typed under + Add recipe as the dish\'s recipe, which then shows chips', async () => {
+    seed({ MON: { lunch: recipeSlot('chicken wrap') } })
+    const user = await openGroceries()
+
+    await user.click(within(suggested()).getByRole('button', { name: '+ Add recipe' }))
+    const box = screen.getByRole('textbox', { name: 'Ingredients for chicken wrap' })
+    expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled()
+    await user.type(box, 'Tortillas, chicken thighs, ,')
+    await user.click(screen.getByRole('button', { name: 'Add' }))
+
+    expect(dishes()).toEqual([['chicken wrap', ['tortillas', 'chicken thighs']]])
+    expect(within(suggested()).queryByRole('button', { name: '+ Add recipe' })).not.toBeInTheDocument()
+  })
+
+  it('adds to an existing recipe rather than replacing it', async () => {
+    seed({ MON: { lunch: recipeSlot('lasagna') } }, { groceries: ['ricotta', 'lasagna sheets'] })
+    const user = await openGroceries()
+
+    await user.click(within(suggested()).getByRole('button', { name: '+ Add recipe' }))
+    await user.type(screen.getByRole('textbox', { name: 'Ingredients for lasagna' }), 'basil{Enter}')
+
+    expect(dishes()).toEqual([['lasagna', ['basil']]])
+    await user.click(screen.getByRole('button', { name: 'Clear all' }))
+    expect(dishes()).toEqual([['lasagna', ['ricotta', 'lasagna sheets', 'basil']]])
+  })
+
+  it('closes the box on Escape without saving', async () => {
+    seed({ MON: { lunch: recipeSlot('tacos') } })
+    const user = await openGroceries()
+
+    await user.click(within(suggested()).getByRole('button', { name: '+ Add recipe' }))
+    await user.type(screen.getByRole('textbox', { name: 'Ingredients for tacos' }), 'salsa{Escape}')
+
+    expect(screen.queryByRole('textbox', { name: 'Ingredients for tacos' })).not.toBeInTheDocument()
+    expect(suggested().querySelector('ul').textContent).toBe('tacos+ Add recipe')
+  })
+
+  it('offers + Add recipe for a dish whose recipe has no ingredients', async () => {
+    seed({ MON: { lunch: recipeSlot('kimchi jjigae') } })
+    await openGroceries()
+
+    expect(suggested().querySelector('ul').textContent).toBe('kimchi jjigae+ Add recipe')
   })
 })

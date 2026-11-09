@@ -13,15 +13,17 @@ export function containsRecipeName(dish, recipe) {
 }
 
 /**
- * Dishes planned from `startIndex` (a position in Monday–Friday) onward, in slot order, each with
- * the ingredients of every recipe its name contains that aren't on the grocery list yet.
- * Dishes left with nothing to suggest are dropped.
- * @returns {{ dish: string, ingredients: string[] }[]}
+ * Dishes planned from `startIndex` (a position in Monday–Friday) onward, in slot order.
+ * `matched` pairs each dish with the ingredients of every recipe its name contains that aren't on
+ * the grocery list yet. `unmatched` names the dishes with nothing to suggest: no recipe in their
+ * name, or recipes whose ingredients are all on the list (or that have none).
+ * @returns {{ matched: { dish: string, ingredients: string[] }[], unmatched: string[] }}
  */
 export function getSuggestions({ slots, recipes, ingredients, listNames, startIndex }) {
   const onList = new Set(listNames.map((name) => name.toLowerCase()))
   const seenDishes = new Set()
-  const suggestions = []
+  const matched = []
+  const unmatched = []
 
   for (const day of DAYS.slice(startIndex)) {
     for (const meal of MEALS) {
@@ -42,8 +44,9 @@ export function getSuggestions({ slots, recipes, ingredients, listNames, startIn
           return true
         })
 
-      if (dishIngredients.length > 0) suggestions.push({ dish, ingredients: dishIngredients })
+      if (dishIngredients.length > 0) matched.push({ dish, ingredients: dishIngredients })
+      else unmatched.push(dish)
     }
   }
-  return suggestions
+  return { matched, unmatched }
 }
