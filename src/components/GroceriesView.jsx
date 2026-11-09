@@ -41,8 +41,8 @@ export function GroceriesView({ groceries, plan }) {
         aria-labelledby="groceries-title"
         className="mx-4 mt-5 rounded-2xl border border-surface-border bg-paper shadow-card"
       >
-        <header className="flex items-center justify-between border-b border-surface-border pl-4 pr-1">
-          <h2 id="groceries-title" className="py-3.5 font-display text-2xl text-ink-day">
+        <header className="flex items-baseline justify-between border-b border-surface-border pl-4 pr-1">
+          <h2 id="groceries-title" className="pb-5 pt-7 font-display text-2xl text-ink-day">
             Groceries
           </h2>
           {items.length > 0 && (
