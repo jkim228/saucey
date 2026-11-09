@@ -150,12 +150,28 @@ describe('Suggested ingredients', () => {
     expect(within(suggested()).queryByRole('button', { name: '+ Add recipe' })).not.toBeInTheDocument()
   })
 
+  it('starts a new line on Enter, and saves only when Add is tapped', async () => {
+    seed({ MON: { lunch: recipeSlot('chicken wrap') } })
+    const user = await openGroceries()
+
+    await user.click(within(suggested()).getByRole('button', { name: '+ Add recipe' }))
+    const box = screen.getByRole('textbox', { name: 'Ingredients for chicken wrap' })
+    await user.type(box, 'tortillas{Enter}chicken thighs, lettuce{Enter}')
+
+    expect(box).toHaveValue('tortillas\nchicken thighs, lettuce\n')
+    expect(within(suggested()).queryAllByRole('list', { name: / ingredients$/ })).toEqual([])
+
+    await user.click(screen.getByRole('button', { name: 'Add' }))
+    expect(dishes()).toEqual([['chicken wrap', ['tortillas', 'chicken thighs', 'lettuce']]])
+  })
+
   it('adds to an existing recipe rather than replacing it', async () => {
     seed({ MON: { lunch: recipeSlot('lasagna') } }, { groceries: ['ricotta', 'lasagna sheets'] })
     const user = await openGroceries()
 
     await user.click(within(suggested()).getByRole('button', { name: '+ Add recipe' }))
-    await user.type(screen.getByRole('textbox', { name: 'Ingredients for lasagna' }), 'basil{Enter}')
+    await user.type(screen.getByRole('textbox', { name: 'Ingredients for lasagna' }), 'basil')
+    await user.click(screen.getByRole('button', { name: 'Add' }))
 
     expect(dishes()).toEqual([['lasagna', ['basil']]])
     await user.click(screen.getByRole('button', { name: 'Clear all' }))

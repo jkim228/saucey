@@ -58,10 +58,14 @@ export function SuggestedIngredients({ matched, unmatched, onAdd, onAddRecipe })
   )
 }
 
-/** One-line box for a dish's ingredients, separated by commas, with an inline Add button. */
+/**
+ * A box for a dish's ingredients, one per line (commas work too), with an inline Add button.
+ * Enter starts a new line and the box grows with it; only Add saves.
+ */
 function DishRecipeBox({ dish, onSubmit, onCancel }) {
   const [text, setText] = useState('')
   const isEmpty = text.replace(/,/g, '').trim() === ''
+  const rows = text.split('\n').length
 
   function handleSubmit(event) {
     event.preventDefault()
@@ -73,15 +77,16 @@ function DishRecipeBox({ dish, onSubmit, onCancel }) {
       aria-label={`Add recipe for ${dish}`}
       onSubmit={handleSubmit}
       onKeyDown={(event) => event.key === 'Escape' && onCancel()}
-      className="mt-2 flex gap-2 pl-3"
+      className="mt-2 flex items-start gap-2 pl-3"
     >
-      <input
+      <textarea
         autoFocus
         aria-label={`Ingredients for ${dish}`}
-        placeholder="Ingredients, separated by commas"
+        placeholder="Ingredients, one per line"
+        rows={rows}
         value={text}
         onChange={(event) => setText(event.target.value)}
-        className="h-8 min-w-0 flex-1 rounded-lg border border-stone-300 bg-white px-2 text-sm focus-visible:border-ink-label/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-label/10 font-medium text-stone-900 placeholder:text-ink-muted"
+        className="min-h-8 min-w-0 flex-1 resize-none rounded-lg border border-stone-300 bg-white px-2 py-[5px] text-sm font-medium leading-5 text-stone-900 placeholder:text-ink-muted focus-visible:border-ink-label/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-label/10"
       />
       <button
         type="submit"
