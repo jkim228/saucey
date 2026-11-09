@@ -74,6 +74,40 @@ describe('DayCarousel', () => {
       expectActiveDay('Tuesday')
     })
 
+    it('shows the whole week when the meals planned pill is tapped', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+
+      await user.click(screen.getByRole('button', { name: '10/10 meals planned' }))
+
+      const week = screen.getByRole('group', { name: 'Week at a glance' })
+      SAMPLE_DAYS.forEach(({ name, day, date }) => {
+        const column = within(within(week).getByRole('group', { name: `${name} at a glance` }))
+        expect(column.getByText(day)).toBeInTheDocument()
+        expect(column.getByText(date)).toBeInTheDocument()
+        expect(column.getAllByText(SAMPLE_SLOTS[day].lunch.recipe).length).toBeGreaterThan(0)
+        expect(column.getAllByText(SAMPLE_SLOTS[day].dinner.recipe).length).toBeGreaterThan(0)
+        expect(column.queryByText('Lunch')).not.toBeInTheDocument()
+      })
+      expect(screen.queryByRole('article', { name: 'Monday' })).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: '10/10 meals planned' }))
+      expect(screen.queryByRole('group', { name: 'Week at a glance' })).not.toBeInTheDocument()
+      expect(screen.getByRole('article', { name: 'Monday' })).toBeInTheDocument()
+    })
+
+    it('returns to a day with the meal open when a meal in the week view is tapped', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+
+      await user.click(screen.getByRole('button', { name: '10/10 meals planned' }))
+      await user.click(screen.getByRole('button', { name: 'Edit Thursday dinner: caldo verde' }))
+
+      expect(screen.queryByRole('group', { name: 'Week at a glance' })).not.toBeInTheDocument()
+      expect(screen.getByRole('form', { name: 'Edit Thursday dinner' })).toBeInTheDocument()
+      expectActiveDay('Thursday')
+    })
+
     it('jumps to a day when its dot is tapped', async () => {
       const user = userEvent.setup()
       render(<App />)

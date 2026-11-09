@@ -2,12 +2,14 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { MEALS } from '../data/week'
 import { getOpeningIndex } from '../lib/dates'
 import { DayCard } from './DayCard'
+import { WeekGrid } from './WeekGrid'
 import { WeekendCard } from './WeekendCard'
 
 /** Stays mounted while hidden behind another tab, so it can return to the same day. */
 export function DayCarousel({ plan, isVisible }) {
   const { days, weekKey } = plan
   const [activeIndex, setActiveIndex] = useState(() => getOpeningIndex(new Date()))
+  const [isWeekView, setIsWeekView] = useState(false)
   const trackRef = useRef(null)
   const targetIndexRef = useRef(null)
   const lastIndex = days.length - 1
@@ -26,12 +28,14 @@ export function DayCarousel({ plan, isVisible }) {
     trackRef.current.scrollTo({ left: openingIndex * getStep(), behavior: 'instant' })
   }, [weekKey])
 
-  // A hidden track loses its scroll position, so put the day back when the tab returns.
+  // A hidden track loses its scroll position, so put the day back when the tab or the
+  // day cards return.
+  const isTrackVisible = isVisible && !isWeekView
   useLayoutEffect(() => {
-    if (!isVisible) return
+    if (!isTrackVisible) return
     targetIndexRef.current = null
     trackRef.current.scrollTo({ left: activeIndex * getStep(), behavior: 'instant' })
-  }, [isVisible])
+  }, [isTrackVisible])
 
   useEffect(() => {
     if (openDayKey) goTo(days.findIndex((day) => day.day === openDayKey))
@@ -63,6 +67,13 @@ export function DayCarousel({ plan, isVisible }) {
     targetIndexRef.current = null
   }
 
+  /** Tapping a meal in the week view returns to that day with the meal open. */
+  function handleSelectSlot(index, dayKey, mealKey) {
+    setActiveIndex(index)
+    setIsWeekView(false)
+    plan.openPanel(dayKey, mealKey)
+  }
+
   /** Tapping a card peeking in from the side brings that day into focus. */
   function handleTrackClick(event) {
     const cards = Array.from(trackRef.current.children)
@@ -79,45 +90,58 @@ export function DayCarousel({ plan, isVisible }) {
         >
           Weekly Schedule
         </h2>
-        <p className="flex h-7 items-center rounded-full border border-neutral-border bg-neutral px-3 font-label text-xs font-bold text-neutral-text">
+        <button
+          type="button"
+          aria-pressed={isWeekView}
+          onClick={() => {
+            plan.closePanel()
+            setIsWeekView(!isWeekView)
+          }}
+          className="flex h-7 items-center rounded-full border border-neutral-border bg-neutral px-3 font-label text-xs font-bold text-neutral-text transition-all duration-200 ease-out active:scale-[0.98]"
+        >
           {plannedCount}/{mealCount} meals planned
-        </p>
+        </button>
       </div>
 
-      <div
-        ref={trackRef}
-        onScroll={handleScroll}
-        onClickCapture={handleTrackClick}
-        onTouchStart={handleManualScroll}
-        onWheel={handleManualScroll}
-        className="mt-3 flex flex-auto items-stretch snap-x snap-mandatory scroll-pl-4 gap-3 overflow-x-auto px-4 pb-2 pt-0.5 [mask-image:linear-gradient(to_right,transparent,black_16px)] [scrollbar-width:none] motion-safe:scroll-smooth [&::-webkit-scrollbar]:hidden"
-      >
-        {days.map((day) => (
-          <DayCard key={day.day} day={day} plan={plan} />
-        ))}
-        <WeekendCard date={plan.saturdayDate} />
-      </div>
+      {isWeekView && <WeekGrid days={days} onSelectSlot={handleSelectSlot} />}
 
-      <div className="-mt-3 flex items-center justify-center">
-        {days.map((day, index) => {
-          const isActive = index === activeIndex
-          return (
-            <button
-              key={day.day}
-              type="button"
-              aria-label={`Show ${day.name}`}
-              aria-current={isActive ? 'true' : undefined}
-              onClick={() => goTo(index)}
-              className="flex h-11 items-center px-[3px]"
-            >
-              <span
-                className={`block rounded-full transition-all duration-200 ease-out ${
-                  isActive ? 'h-2 w-2.5 bg-brand' : 'h-1.5 w-1.5 bg-ink-faint'
-                }`}
-              />
-            </button>
-          )
-        })}
+      {/* Hidden rather than removed while the week view shows, so the track keeps its place. */}
+      <div hidden={isWeekView} className={isWeekView ? 'hidden' : 'flex flex-auto flex-col'}>
+        <div
+          ref={trackRef}
+          onScroll={handleScroll}
+          onClickCapture={handleTrackClick}
+          onTouchStart={handleManualScroll}
+          onWheel={handleManualScroll}
+          className="mt-3 flex flex-auto items-stretch snap-x snap-mandatory scroll-pl-4 gap-3 overflow-x-auto px-4 pb-2 pt-0.5 [mask-image:linear-gradient(to_right,transparent,black_16px)] [scrollbar-width:none] motion-safe:scroll-smooth [&::-webkit-scrollbar]:hidden"
+        >
+          {days.map((day) => (
+            <DayCard key={day.day} day={day} plan={plan} />
+          ))}
+          <WeekendCard date={plan.saturdayDate} />
+        </div>
+
+        <div className="-mt-3 flex items-center justify-center">
+          {days.map((day, index) => {
+            const isActive = index === activeIndex
+            return (
+              <button
+                key={day.day}
+                type="button"
+                aria-label={`Show ${day.name}`}
+                aria-current={isActive ? 'true' : undefined}
+                onClick={() => goTo(index)}
+                className="flex h-11 items-center px-[3px]"
+              >
+                <span
+                  className={`block rounded-full transition-all duration-200 ease-out ${
+                    isActive ? 'h-2 w-2.5 bg-brand' : 'h-1.5 w-1.5 bg-ink-faint'
+                  }`}
+                />
+              </button>
+            )
+          })}
+        </div>
       </div>
     </section>
   )
