@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ServingsCounter } from './ServingsCounter'
 import { TagToggles } from './TagPill'
+import { withServingsTag } from '../data/tags'
 
 const FIELD_CLASS =
   'w-full rounded-lg border border-stone-300 bg-white px-2 text-sm font-medium text-stone-900 placeholder:text-ink-muted'
@@ -37,6 +38,12 @@ export function RecipeEditor({
   function handleSubmit(event) {
     event.preventDefault()
     if (canSave) onSave(nameValue.trim(), text, servings, tags)
+  }
+
+  /** Going above 1 serving turns on "2+", so the pill shows what saving will do. */
+  function handleServingsChange(value) {
+    setServings(value)
+    setTags((current) => withServingsTag(current, value))
   }
 
   function handleKeyDown(event) {
@@ -77,7 +84,7 @@ export function RecipeEditor({
             {title}
           </p>
         )}
-        <ServingsCounter variant="pill" value={servings} onChange={setServings} />
+        <ServingsCounter variant="pill" value={servings} onChange={handleServingsChange} />
       </div>
 
       <TagToggles

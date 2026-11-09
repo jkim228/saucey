@@ -1,4 +1,4 @@
-import { RECIPE_TAGS } from '../data/tags'
+import { RECIPE_TAGS, withServingsTag } from '../data/tags'
 import { DAYS, MEALS } from '../data/week'
 import { toLower } from './recipes'
 
@@ -107,19 +107,30 @@ function lowercasePlan(plan) {
   }
 }
 
+/** Recipes saved with more than 1 serving before "2+" was added for them get it now. */
+function addServingsTags(plan) {
+  const tags = { ...plan.tags }
+  for (const [name, count] of Object.entries(plan.servings)) {
+    if (count > 1) tags[name] = withServingsTag(tags[name] ?? [], count)
+  }
+  return { ...plan, tags: cleanTags(tags, plan.customTags) }
+}
+
 /** Returns the saved plan, or null if there is none or it can't be read. */
 export function loadPlan() {
   try {
     const plan = JSON.parse(localStorage.getItem(STORAGE_KEY))
     if (!isValidPlan(plan)) return null
     const customTags = cleanCustomTags(plan.customTags)
-    return lowercasePlan({
-      ingredients: {},
-      servings: {},
-      ...plan,
-      customTags,
-      tags: cleanTags(plan.tags, customTags),
-    })
+    return addServingsTags(
+      lowercasePlan({
+        ingredients: {},
+        servings: {},
+        ...plan,
+        customTags,
+        tags: cleanTags(plan.tags, customTags),
+      }),
+    )
   } catch {
     return null
   }

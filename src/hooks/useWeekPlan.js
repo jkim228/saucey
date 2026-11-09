@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { DAYS, STARTER_RECIPES, createEmptySlots } from '../data/week'
 import { getDateLabels, getWeekKey, getWeekRangeLabel } from '../lib/dates'
-import { RECIPE_TAGS } from '../data/tags'
+import { RECIPE_TAGS, withServingsTag } from '../data/tags'
 import { findRecipe, toLower } from '../lib/recipes'
 import { loadPlan, savePlan } from '../lib/storage'
 
@@ -114,7 +114,7 @@ export function useWeekPlan() {
         recipes: isNew ? [...current.recipes, name] : current.recipes,
         ingredients: { ...current.ingredients, [name]: recipeIngredients },
         servings: { ...current.servings, [name]: recipeServings },
-        tags: { ...current.tags, [name]: recipeTags },
+        tags: { ...current.tags, [name]: withServingsTag(recipeTags, recipeServings) },
       }
     })
   }

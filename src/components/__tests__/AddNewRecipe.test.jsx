@@ -267,6 +267,47 @@ describe('Add new recipe', () => {
       expect(rowTags('caldo verde')).toEqual([])
     })
 
+    it('turns on 2+ when servings go above 1, and saves it even if untoggled', async () => {
+      const user = userEvent.setup()
+      await openRecipes(user)
+
+      await user.click(button('Edit lasagna'))
+      await user.click(button('More servings'))
+      expect(tagButton('2+')).toHaveAttribute('aria-pressed', 'true')
+
+      await user.click(tagButton('2+'))
+      await user.click(button('Save'))
+      expect(rowTags('lasagna')).toEqual(['2+'])
+    })
+
+    it('adds 2+ to recipes saved earlier with more than 1 serving', async () => {
+      savePlan({
+        weekKey: '2026-11-09',
+        slots: SAMPLE_SLOTS,
+        recipes: STARTER_RECIPES,
+        ingredients: {},
+        servings: { Lasagna: 4, 'caldo verde': 1 },
+        tags: { lasagna: ['dinner'] },
+      })
+      const user = userEvent.setup()
+      await openRecipes(user)
+
+      expect(rowTags('lasagna')).toEqual(['dinner', '2+'])
+      expect(rowTags('caldo verde')).toEqual([])
+    })
+
+    it('leaves 2+ off a 1-serving recipe unless picked', async () => {
+      const user = userEvent.setup()
+      await openRecipes(user)
+
+      await user.click(button('Edit lasagna'))
+      await user.click(button('More servings'))
+      await user.click(button('Fewer servings'))
+      await user.click(tagButton('2+'))
+      await user.click(button('Save'))
+      expect(rowTags('lasagna')).toEqual([])
+    })
+
     it('drops tag changes when the recipe closes without saving, and can untag', async () => {
       const user = userEvent.setup()
       await openRecipes(user)

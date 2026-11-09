@@ -206,7 +206,7 @@ describe('Save data', () => {
       expect(plan.slots.MON.lunch.recipe).toBe('chicken wrap')
       expect(plan.ingredients).toEqual({ 'chicken wrap': ['tortilla', 'chicken'] })
       expect(plan.servings).toEqual({ 'chicken wrap': 2 })
-      expect(plan.tags).toEqual({ lasagna: ['dinner'] })
+      expect(plan.tags).toEqual({ lasagna: ['dinner'], 'chicken wrap': ['2+'] })
       expect(loadGroceries().map((item) => item.name)).toEqual(['milk'])
     })
 
