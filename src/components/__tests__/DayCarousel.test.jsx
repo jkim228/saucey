@@ -65,6 +65,15 @@ describe('DayCarousel', () => {
       expectActiveDay('Tuesday')
     })
 
+    it('brings a day into focus when its card is tapped', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+
+      await user.click(screen.getByRole('article', { name: 'Tuesday' }))
+
+      expectActiveDay('Tuesday')
+    })
+
     it('jumps to a day when its dot is tapped', async () => {
       const user = userEvent.setup()
       render(<App />)

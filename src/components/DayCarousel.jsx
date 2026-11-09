@@ -63,6 +63,13 @@ export function DayCarousel({ plan, isVisible }) {
     targetIndexRef.current = null
   }
 
+  /** Tapping a card peeking in from the side brings that day into focus. */
+  function handleTrackClick(event) {
+    const cards = Array.from(trackRef.current.children)
+    const index = cards.findIndex((card) => card.contains(event.target))
+    if (index !== -1) goTo(index)
+  }
+
   return (
     <section aria-labelledby="weekly-schedule-title" className="mt-5">
       <div className="flex items-center justify-between px-4 pl-6">
@@ -80,6 +87,7 @@ export function DayCarousel({ plan, isVisible }) {
       <div
         ref={trackRef}
         onScroll={handleScroll}
+        onClickCapture={handleTrackClick}
         onTouchStart={handleManualScroll}
         onWheel={handleManualScroll}
         className="mt-3 flex items-start snap-x snap-mandatory scroll-pl-4 gap-3 overflow-x-auto px-4 pb-2 pt-0.5 [mask-image:linear-gradient(to_right,transparent,black_16px)] [scrollbar-width:none] motion-safe:scroll-smooth [&::-webkit-scrollbar]:hidden"
